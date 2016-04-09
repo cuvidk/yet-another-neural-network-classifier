@@ -28,6 +28,7 @@ int main()
     try{
         NeuralNetwork nn({2, 3, 1});
         //nn.loadLearnedWeights("weights.txt", NNFileType::MATRIX_WEIGHTS);
+        nn.loadTrainingData("input.txt", NNFileType::UNIFIED_TRAINING_DATA);
     } catch (std::runtime_error& e){
         std::cerr << e.what() << std::endl;
     }
