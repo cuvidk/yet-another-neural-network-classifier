@@ -20,6 +20,19 @@ NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float
     randomlyInitWeights();
 }
 
+arma::mat NeuralNetwork::predict(arma::mat& input)
+{
+    arma::mat activation = input;
+    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
+    {
+        activation = arma::join_horiz(arma::ones(activation.n_rows, 1), activation);
+        arma::mat z = activation * m_theta[layer].t();
+        sigmoid(z);
+        activation = z;
+    }
+    return activation;
+}
+
 void NeuralNetwork::setRegularizationFactor(float regularizationFactor)
 {
     m_regularizationFactor = regularizationFactor;
@@ -43,7 +56,6 @@ void NeuralNetwork::loadTrainingData(const std::string& fileName, NNFileType fil
     case NNFileType::UNIFIED_TRAINING_DATA:
         NeuralNetworkLoader::loadUnifiedTrainingSet(fileName, m_X, m_y,
             m_numNeuronsOnLayer[0], m_numNeuronsOnLayer[m_numNeuronsOnLayer.size() - 1]);
-        std::cout << m_X << std::endl << m_y << std::endl;
         break;
     case NNFileType::IDX_MNIST_LIKE_LABELS:
         break;
@@ -69,7 +81,7 @@ void NeuralNetwork::randomlyInitWeights()
 
 void NeuralNetwork::sigmoid(arma::mat& input)
 {
-    input.for_each( [](arma::mat::elem_type& val) { val = exp(val); } );
+    input.for_each( [](arma::mat::elem_type& val) { val = 1 / (1 + exp(-val)); } );
 }
 
 void NeuralNetwork::logarithm(arma::mat& input)

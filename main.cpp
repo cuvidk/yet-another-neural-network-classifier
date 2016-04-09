@@ -31,7 +31,10 @@ int main()
     try{
         NeuralNetwork nn({2, 3, 1});
         //nn.loadLearnedWeights("weights.txt", NNFileType::MATRIX_WEIGHTS);
-//        nn.loadTrainingData("input.txt", NNFileType::UNIFIED_TRAINING_DATA);
+        nn.loadTrainingData("input.txt", NNFileType::UNIFIED_TRAINING_DATA);
+//        arma::mat in = ones<mat>(1, 2);
+//        arma::mat out = nn.predict(in);
+//        cout << out << endl;
     } catch (std::runtime_error& e){
         std::cerr << e.what() << std::endl;
     }

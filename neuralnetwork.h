@@ -26,6 +26,7 @@ private:
 public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer);
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
+    arma::mat predict(arma::mat& input);
     void setRegularizationFactor(float regularizationFactor);
     void setLearningRate(float learningRate);
     void loadLearnedWeights(const std::string& fileName, NNFileType fileType);
