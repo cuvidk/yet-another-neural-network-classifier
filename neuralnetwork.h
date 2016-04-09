@@ -20,24 +20,24 @@ private:
     std::vector<int> m_numNeuronsOnLayer;    
     std::vector<arma::mat> m_theta;
     unsigned int m_numLayers;
-    float m_regularizationFactor;
-    float m_learningRate;
+    double m_regularizationFactor;
+    double m_learningRate;
 
 public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer);
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
     arma::mat predict(arma::mat& input);
-    void setRegularizationFactor(float regularizationFactor);
-    void setLearningRate(float learningRate);
+    void setRegularizationFactor(double regularizationFactor);
+    void setLearningRate(double learningRate);
     void loadLearnedWeights(const std::string& fileName, NNFileType fileType);
     void loadTrainingData(const std::string& fileName, NNFileType fileType);
 
-    //migrate to private:
-    //double computeCost();
 private:
     void randomlyInitWeights();
-    void sigmoid(arma::mat& input);
-    void logarithm(arma::mat& input);
+    arma::mat sigmoid(arma::mat& input);
+    arma::mat logarithm(arma::mat& input);
+    double computeCost();
+    double computeRegTerm();
 };
 
 #endif // NEURALNETWORK_H

@@ -27,18 +27,17 @@ arma::mat NeuralNetwork::predict(arma::mat& input)
     {
         activation = arma::join_horiz(arma::ones(activation.n_rows, 1), activation);
         arma::mat z = activation * m_theta[layer].t();
-        sigmoid(z);
-        activation = z;
+        activation = sigmoid(z);
     }
     return activation;
 }
 
-void NeuralNetwork::setRegularizationFactor(float regularizationFactor)
+void NeuralNetwork::setRegularizationFactor(double regularizationFactor)
 {
     m_regularizationFactor = regularizationFactor;
 }
 
-void NeuralNetwork::setLearningRate(float learningRate)
+void NeuralNetwork::setLearningRate(double learningRate)
 {
     m_learningRate = learningRate;
 }
@@ -79,12 +78,36 @@ void NeuralNetwork::randomlyInitWeights()
     }
 }
 
-void NeuralNetwork::sigmoid(arma::mat& input)
+arma::mat NeuralNetwork::sigmoid(arma::mat& input)
 {
     input.for_each( [](arma::mat::elem_type& val) { val = 1 / (1 + exp(-val)); } );
+    return input;
 }
 
-void NeuralNetwork::logarithm(arma::mat& input)
+arma::mat NeuralNetwork::logarithm(arma::mat& input)
 {
     input.for_each( [](arma::mat::elem_type& val) { val = log(val); } );
+    return input;
+}
+
+double NeuralNetwork::computeCost()
+{
+    arma::mat h = predict(m_X);
+    arma::mat h_1 = 1 - h;
+    unsigned int m = m_X.n_rows;
+    double cost = (-1.0 / m) * arma::accu(m_y % logarithm(h) + (1 - m_y) % logarithm(h_1));
+    return cost + (m_regularizationFactor / (2 * m)) * computeRegTerm();
+}
+
+double NeuralNetwork::computeRegTerm()
+{
+    double regularizationTerm = 0.0;
+
+    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
+    {
+        arma::mat toRegularize = m_theta[layer].cols(1, m_theta[layer].n_cols - 1);
+        regularizationTerm += arma::accu(toRegularize % toRegularize);
+    }
+
+    return regularizationTerm;
 }

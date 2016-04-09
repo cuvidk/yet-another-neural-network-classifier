@@ -29,12 +29,13 @@ int main()
 //        std::cerr << e.what() << std::endl;
 //    }
     try{
-        NeuralNetwork nn({2, 3, 1});
-        //nn.loadLearnedWeights("weights.txt", NNFileType::MATRIX_WEIGHTS);
-        nn.loadTrainingData("input.txt", NNFileType::UNIFIED_TRAINING_DATA);
+        NeuralNetwork nn({400, 25, 10});
+        nn.loadLearnedWeights("weights2.txt", NNFileType::MATRIX_WEIGHTS);
+        nn.loadTrainingData("input2.txt", NNFileType::UNIFIED_TRAINING_DATA);
 //        arma::mat in = ones<mat>(1, 2);
 //        arma::mat out = nn.predict(in);
 //        cout << out << endl;
+        cout << nn.computeCost() << endl;
     } catch (std::runtime_error& e){
         std::cerr << e.what() << std::endl;
     }
