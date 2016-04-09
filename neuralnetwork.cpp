@@ -20,20 +20,9 @@ NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float
     randomlyInitWeights();
 }
 
-void NeuralNetwork::randomlyInitWeights()
+void NeuralNetwork::setRegularizationFactor(float regularizationFactor)
 {
-    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
-    {
-        double epsilon_init = sqrt(6) / sqrt(m_numNeuronsOnLayer[layer] + m_numNeuronsOnLayer[layer + 1]);
-        arma::mat crtTheta = arma::randu(m_numNeuronsOnLayer[layer + 1], m_numNeuronsOnLayer[layer] + 1);
-        crtTheta = crtTheta * 2 * epsilon_init - epsilon_init;
-        m_theta.push_back(crtTheta);
-    }
-}
-
-void NeuralNetwork::setRegularizationTerm(float regularizationTerm)
-{
-    m_regularizationFactor = regularizationTerm;
+    m_regularizationFactor = regularizationFactor;
 }
 
 void NeuralNetwork::setLearningRate(float learningRate)
@@ -52,7 +41,9 @@ void NeuralNetwork::loadTrainingData(const std::string& fileName, NNFileType fil
     switch (fileType)
     {
     case NNFileType::UNIFIED_TRAINING_DATA:
-        NeuralNetworkLoader::loadUnifiedTrainingSet(fileName, m_X, m_y);
+        NeuralNetworkLoader::loadUnifiedTrainingSet(fileName, m_X, m_y,
+            m_numNeuronsOnLayer[0], m_numNeuronsOnLayer[m_numNeuronsOnLayer.size() - 1]);
+        std::cout << m_X << std::endl << m_y << std::endl;
         break;
     case NNFileType::IDX_MNIST_LIKE_LABELS:
         break;
@@ -63,4 +54,25 @@ void NeuralNetwork::loadTrainingData(const std::string& fileName, NNFileType fil
     default:
         throw InvalidInputException("Invalid training file type selected.");
     }
+}
+
+void NeuralNetwork::randomlyInitWeights()
+{
+    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
+    {
+        double epsilon_init = sqrt(6) / sqrt(m_numNeuronsOnLayer[layer] + m_numNeuronsOnLayer[layer + 1]);
+        arma::mat crtTheta = arma::randu(m_numNeuronsOnLayer[layer + 1], m_numNeuronsOnLayer[layer] + 1);
+        crtTheta = crtTheta * 2 * epsilon_init - epsilon_init;
+        m_theta.push_back(crtTheta);
+    }
+}
+
+void NeuralNetwork::sigmoid(arma::mat& input)
+{
+    input.for_each( [](arma::mat::elem_type& val) { val = exp(val); } );
+}
+
+void NeuralNetwork::logarithm(arma::mat& input)
+{
+    input.for_each( [](arma::mat::elem_type& val) { val = log(val); } );
 }

@@ -9,7 +9,8 @@ void NeuralNetworkLoader::insertLineInMatrix(arma::mat& matrix, unsigned int lin
     matrix.row(lineIndex) = arma::conv_to<arma::rowvec>::from(rowToInsert);
 }
 
-void NeuralNetworkLoader::loadUnifiedTrainingSet(const std::string &fileName, arma::mat &inputData, arma::mat &outputData)
+void NeuralNetworkLoader::loadUnifiedTrainingSet(const std::string &fileName, arma::mat &inputData,
+                                                 arma::mat &outputData, int numNeuronsLayer1, int numNeuronsLayerL)
 {
     std::ifstream file(fileName);
 
@@ -23,7 +24,8 @@ void NeuralNetworkLoader::loadUnifiedTrainingSet(const std::string &fileName, ar
         iss.str(line);
         iss >> numTrainingData >> inputLength >> outputLength;
 
-        if (!numTrainingData || !inputLength || !outputLength)
+        if (!numTrainingData || !inputLength || !outputLength ||
+                numNeuronsLayer1 != inputLength || numNeuronsLayerL != outputLength)
             throw FileFormatException(fileName, NNFileType::UNIFIED_TRAINING_DATA);
 
         inputData = arma::ones<arma::mat>(numTrainingData, inputLength);

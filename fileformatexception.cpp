@@ -16,7 +16,10 @@ const char* FileFormatException::what() const throw ()
         message += "Make sure that your file has the following format:\n";
         message += "    #_training_examples #_input_features(n) #_output_labels(k)\n";
         message += "    input_feature_1 input_feature_2 ... input_feature_n\n";
-        message += "    output_label_1 output_label_2 ... output_label_k\n  ...";
+        message += "    output_label_1 output_label_2 ... output_label_k\n";
+        message += "Also make sure that #_input_features(n) = #_of_neurons_first_layer\n";
+        message += "and #_output_labels(k) = #_of_neurons_last_layer.";
+
         break;
     case NNFileType::IDX_MNIST_LIKE_LABELS:
         break;

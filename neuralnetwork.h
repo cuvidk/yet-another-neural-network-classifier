@@ -6,7 +6,7 @@
 #include <armadillo>
 #include <algorithm>
 #include <iterator>
-#include <math.h>
+#include <cmath>
 
 #include "neuralnetworkloader.h"
 #include "invalidinputexception.h"
@@ -26,11 +26,17 @@ private:
 public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer);
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
-    void randomlyInitWeights();
-    void setRegularizationTerm(float regularizationTerm);
+    void setRegularizationFactor(float regularizationFactor);
     void setLearningRate(float learningRate);
     void loadLearnedWeights(const std::string& fileName, NNFileType fileType);
     void loadTrainingData(const std::string& fileName, NNFileType fileType);
+
+    //migrate to private:
+    //double computeCost();
+private:
+    void randomlyInitWeights();
+    void sigmoid(arma::mat& input);
+    void logarithm(arma::mat& input);
 };
 
 #endif // NEURALNETWORK_H

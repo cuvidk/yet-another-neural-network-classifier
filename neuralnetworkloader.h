@@ -20,7 +20,8 @@ private:
     static void insertLineInMatrix(arma::mat& matrix, unsigned int lineIndex, std::string& line);
 
 public:
-    static void loadUnifiedTrainingSet(const std::string& fileName, arma::mat& inputData, arma::mat& outputData);
+    static void loadUnifiedTrainingSet(const std::string& fileName, arma::mat& inputData,
+                                       arma::mat& outputData, int numNeuronsLayer1, int numNeuronsLayerL);
     static void loadLearnedWeightsMatrix(const std::string& fileName, std::vector<arma::mat>& m_theta);
 };
 
