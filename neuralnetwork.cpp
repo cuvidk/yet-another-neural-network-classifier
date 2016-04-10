@@ -22,13 +22,21 @@ NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float
 
 arma::mat NeuralNetwork::predict(arma::mat& input)
 {
+    m_activationOnLayer.clear();
+    m_partialOnLayer.clear();
+
     arma::mat activation = input;
     for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
     {
         activation = arma::join_horiz(arma::ones(activation.n_rows, 1), activation);
+        m_activationOnLayer.push_back(activation);
+
         arma::mat z = activation * m_theta[layer].t();
+        m_partialOnLayer.push_back(z);
+
         activation = sigmoid(z);
     }
+    m_activationOnLayer.push_back(activation);
     return activation;
 }
 
@@ -67,8 +75,29 @@ void NeuralNetwork::loadTrainingData(const std::string& fileName, NNFileType fil
     }
 }
 
+void NeuralNetwork::train(int numIterations, int iterations_between_report)
+{
+    //IMPLEMENT CHECKS!!!!
+    double prevCost = computeCost();
+    double crtCost = prevCost;
+    for (int iteration = 0; iteration < numIterations; ++iteration)
+    {
+        if (iteration % iterations_between_report == 0)
+            std::cout << "Iteration: " << iteration + 1 << " | Cost: " << crtCost << std::endl;
+        if (crtCost > prevCost)
+        {
+            std::cout << "It seems like the cost is increasing. Choose a smaller learning rate." << std::endl;
+            return;
+        }
+        backprop();
+        prevCost = crtCost;
+        crtCost = computeCost();
+    }
+}
+
 void NeuralNetwork::randomlyInitWeights()
 {
+    arma::arma_rng::set_seed_random();
     for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
     {
         double epsilon_init = sqrt(6) / sqrt(m_numNeuronsOnLayer[layer] + m_numNeuronsOnLayer[layer + 1]);
@@ -78,13 +107,18 @@ void NeuralNetwork::randomlyInitWeights()
     }
 }
 
-arma::mat NeuralNetwork::sigmoid(arma::mat& input)
+arma::mat NeuralNetwork::sigmoid(arma::mat input)
 {
     input.for_each( [](arma::mat::elem_type& val) { val = 1 / (1 + exp(-val)); } );
     return input;
 }
 
-arma::mat NeuralNetwork::logarithm(arma::mat& input)
+arma::mat NeuralNetwork::sigmoidGradient(arma::mat& input)
+{
+    return sigmoid(input) % (1 - sigmoid(input));
+}
+
+arma::mat NeuralNetwork::logarithm(arma::mat input)
 {
     input.for_each( [](arma::mat::elem_type& val) { val = log(val); } );
     return input;
@@ -92,11 +126,12 @@ arma::mat NeuralNetwork::logarithm(arma::mat& input)
 
 double NeuralNetwork::computeCost()
 {
-    arma::mat h = predict(m_X);
+    //IMPLEMENT CHECKS!!
+    arma::mat h =  predict(m_X);;
     arma::mat h_1 = 1 - h;
     unsigned int m = m_X.n_rows;
     double cost = (-1.0 / m) * arma::accu(m_y % logarithm(h) + (1 - m_y) % logarithm(h_1));
-    return cost + (m_regularizationFactor / (2 * m)) * computeRegTerm();
+    return cost + (m_regularizationFactor / (2.0 * m)) * computeRegTerm();
 }
 
 double NeuralNetwork::computeRegTerm()
@@ -110,4 +145,45 @@ double NeuralNetwork::computeRegTerm()
     }
 
     return regularizationTerm;
+}
+
+void NeuralNetwork::backprop()
+{
+    //IMPLEMENT CHECKS, ALSO REFACTOR
+    std::vector<arma::mat> gradients;
+
+    gradients.push_back(m_activationOnLayer[m_numLayers - 1] - m_y);
+
+    unsigned int prevErrorIndex = 0;
+    for (int layer = m_numLayers - 2; layer > 0; --layer)
+    {
+        arma::mat error;
+        error = gradients[prevErrorIndex] * m_theta[layer].cols(1, m_theta[layer].n_cols - 1);
+        error = error % sigmoidGradient(m_partialOnLayer[layer - 1]);
+        gradients.push_back(error);
+        ++prevErrorIndex;
+    }
+
+    int errorIndex = 0;
+    for (int layer = m_numLayers - 2; layer >= 0; --layer)
+    {
+        gradients[errorIndex] = (1.0 / m_X.n_rows) * (gradients[errorIndex].t() * m_activationOnLayer[layer]);
+        ++errorIndex;
+    }
+
+    std::reverse(gradients.begin(), gradients.end());
+
+    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
+    {
+        int lastCol = gradients[layer].n_cols - 1;
+        gradients[layer].cols(1, lastCol) += (m_regularizationFactor / m_X.n_rows) * m_theta[layer].cols(1, lastCol);
+    }
+
+    gradientDescent(gradients);
+}
+
+void NeuralNetwork::gradientDescent(std::vector<arma::mat>& gradients)
+{
+    for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
+        m_theta[layer] -= m_learningRate * gradients[layer];
 }
