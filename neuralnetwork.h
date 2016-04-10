@@ -35,15 +35,19 @@ public:
     void loadTrainingData(const std::string& fileName, NNFileType fileType);
     void train(int numIterations, int iterations_between_report);
 
+    //DEBUGGING
+    void printWeights() const;
 private:
     void randomlyInitWeights();
-    arma::mat sigmoid(arma::mat input);
-    arma::mat sigmoidGradient(arma::mat& input);
-    arma::mat logarithm(arma::mat input);
-    double computeCost();
-    double computeRegTerm();
+    arma::mat feedForward(arma::mat& input, std::vector<arma::mat>& theta);
+    arma::mat sigmoid(arma::mat input) const;
+    arma::mat sigmoidGradient(arma::mat& input) const;
+    arma::mat logarithm(arma::mat input) const;
+    double computeCost(std::vector<arma::mat>& theta);
+    double computeRegTerm(std::vector<arma::mat>& theta) const;
     void backprop();
     void gradientDescent(std::vector<arma::mat>& gradients);
+    void checkGradients(std::vector<arma::mat>& gradients);
 };
 
 #endif // NEURALNETWORK_H
