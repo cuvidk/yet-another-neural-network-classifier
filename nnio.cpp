@@ -56,6 +56,8 @@ void NnIO::loadWeights(const std::string& filename, std::vector<arma::mat>& weig
             }
             weights.push_back(matrix);
         }
+        if (!file.eof())
+            throw FileFormatException(filename, NNFileType::UNIFIED);
     }
     else
         throw FileOpenException(filename);
@@ -90,6 +92,8 @@ void NnIO::loadSimpleData(const std::string& filename, arma::mat& container)
 
             container.row(rowCount++) = arma::conv_to<arma::rowvec>::from(rowToInsert);
         }
+        if (!file.eof())
+            throw FileFormatException(filename, NNFileType::UNIFIED);
     }
     else
         throw FileOpenException(filename);
@@ -111,6 +115,9 @@ void NnIO::loadUnifiedData(const std::string& filename, arma::mat& input, arma::
         if ((!numRows && !numColsIn && !numColsOut) || !m_iss.eof())
             throw FileFormatException(filename, NNFileType::UNIFIED);
 
+        input = arma::mat(numRows, numColsIn);
+        output = arma::mat(numRows, numColsOut);
+
         unsigned int rowCount = 0;
         while (rowCount < numRows)
         {
@@ -126,6 +133,9 @@ void NnIO::loadUnifiedData(const std::string& filename, arma::mat& input, arma::
             input.row(rowCount) = arma::conv_to<arma::rowvec>::from(in);
             output.row(rowCount++) = arma::conv_to<arma::rowvec>::from(out);
         }
+
+        if (!file.eof())
+            throw FileFormatException(filename, NNFileType::UNIFIED);
     }
     else
         throw FileOpenException(filename);
@@ -140,16 +150,20 @@ void NnIO::saveWeights(const std::string& filename, std::vector<arma::mat>& weig
     if (file.is_open())
     {
         file << weights.size() << "\n";
-        for (auto& theta : weights)
+        for (unsigned int layer = 0; layer < weights.size(); ++layer)
         {
-            file << theta.n_rows << " " << theta.n_cols << "\n";
-            for (unsigned int rowIndex = 0; rowIndex < theta.n_rows; ++rowIndex)
+            file << weights[layer].n_rows << " " << weights[layer].n_cols << "\n";
+            for (unsigned int rowIndex = 0; rowIndex < weights[layer].n_rows; ++rowIndex)
             {
                 m_ss.str(std::string());
                 m_ss.clear();
-                std::vector<double> row = arma::conv_to<std::vector<double>>::from(theta.row(rowIndex));
-                std::copy(row.begin(), row.end(), std::ostream<double>(m_ss, " "));
-                file << m_ss << "\n";
+                std::vector<double> row = arma::conv_to<std::vector<double>>::from(weights[layer].row(rowIndex));
+                std::copy(row.begin(), row.end(), std::ostream_iterator<double>(m_ss, " "));
+                if (static_cast<unsigned int>(rowIndex) == weights[layer].n_rows - 1 &&
+                        layer == weights.size() - 1)
+                    file << m_ss.rdbuf();
+                else
+                    file << m_ss.rdbuf() << "\n";
             }
         }
     }

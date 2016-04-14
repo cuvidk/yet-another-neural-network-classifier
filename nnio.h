@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include <iterator>
-#include <exception>
 #include <algorithm>
 #include <armadillo>
 
