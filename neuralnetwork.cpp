@@ -37,23 +37,26 @@ void NeuralNetwork::setLearningRate(double learningRate)
 
 void NeuralNetwork::loadLearnedWeights(const std::string& fileName, NNFileType fileType)
 {
-    if (fileType == NNFileType::MATRIX_WEIGHTS)
-        NeuralNetworkLoader::loadLearnedWeightsMatrix(fileName, m_theta);
+    if (fileType == NNFileType::WEIGHTS)
+    try{
+        NnIO::loadWeights(fileName, m_theta);
+    } catch (FileFormatException& e) {
+        throw e;
+    }
 }
 
 void NeuralNetwork::loadTrainingData(const std::string& fileName, NNFileType fileType)
 {
     switch (fileType)
     {
-    case NNFileType::UNIFIED_TRAINING_DATA:
-        NeuralNetworkLoader::loadUnifiedTrainingSet(fileName, m_X, m_y,
-            m_numNeuronsOnLayer[0], m_numNeuronsOnLayer[m_numNeuronsOnLayer.size() - 1]);
+    case NNFileType::UNIFIED:
+        NnIO::loadUnifiedData(fileName, m_X, m_y);
         break;
     case NNFileType::IDX_MNIST_LIKE_LABELS:
         break;
-    case NNFileType::IDX_MNSIT_LIKE_SAMPELS:
+    case NNFileType::IDX_MNSIT_LIKE_IMAGES:
         break;
-    case NNFileType::ONE_TRAINING_EXAMPLE_ONLY:
+    case NNFileType::SIMPLE:
         break;
     default:
         throw InvalidInputException("Invalid training file type selected.");
@@ -238,4 +241,9 @@ void NeuralNetwork::printWeights() const
     {
         std::cout << m_theta[i] << std::endl;
     }
+}
+
+arma::mat NeuralNetwork::getInput(int index)
+{
+    return m_X.row(index);
 }

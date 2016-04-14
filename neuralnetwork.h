@@ -8,7 +8,7 @@
 #include <cmath>
 #include <armadillo>
 
-#include "neuralnetworkloader.h"
+#include "nnio.h"
 #include "invalidinputexception.h"
 #include "nnfiletype.h"
 
@@ -37,6 +37,7 @@ public:
 
     //DEBUGGING
     void printWeights() const;
+    arma::mat getInput(int index);
 private:
     void randomlyInitWeights();
     arma::mat feedForward(arma::mat& input, std::vector<arma::mat>& theta);

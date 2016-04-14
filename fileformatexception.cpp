@@ -1,7 +1,7 @@
 #include "fileformatexception.h"
-
+#include <iostream>
 FileFormatException::FileFormatException(const std::string& fileName, NNFileType fileType)
-    :std::runtime_error(fileName + "'s file format is invalid.\n"),
+    :std::runtime_error(fileName + "'s file format is invalid.\nFileformat:\n"),
       m_fileType(fileType)
 {}
 
@@ -12,27 +12,29 @@ const char* FileFormatException::what() const throw ()
 
     switch (m_fileType)
     {
-    case NNFileType::UNIFIED_TRAINING_DATA:
-        message += "Make sure that your file has the following format:\n";
-        message += "    #_training_examples #_input_features(n) #_output_labels(k)\n";
-        message += "    input_feature_1 input_feature_2 ... input_feature_n\n";
-        message += "    output_label_1 output_label_2 ... output_label_k\n";
-        message += "Also make sure that #_input_features(n) = #_of_neurons_first_layer\n";
-        message += "and #_output_labels(k) = #_of_neurons_last_layer.";
-
+    case NNFileType::SIMPLE:
+        message += "\t#dataRows #colsPerRow\n\trow[1]\n\trow[2]\n\t...\n\trow[#dataRows]\n";
+        message += "Make sure length(row[i]) = #colsPerRow, where i = 1..#dataRows\n";
+        break;
+    case NNFileType::UNIFIED:
+        message += "\t#pairs #features #classes\n";
+        message += "\tfeature[1][1] feature[1][2] ... feature[1][#features]\n";
+        message += "\tclass[1][1] class[1][2] ... class[1][#classes]\n\t...";
+        message += "\tfeature[#pairs][1] feature[#pairs][2] ... feature[#pairs][#features]\n";
+        message += "\tclass[#pairs][1] class[#pairs][2] ... class[#pairs][#classes]\n\t...";
+        break;
+    case NNFileType::WEIGHTS:
+        std::cout << "I ENTER" << std::endl;
+        message += "\t#layers - 1\n\t#neurons_layer_2 (#neurons_layer_1) + 1(bias)\n";
+        message += "\tweight_[1][0] weight_[1][1] ... weight_[1][#neurons_layer1]\n";
+        message += "\tweight_[2][0] weight_[2][1] ... weight_[2][#neurons_layer1]\n\t...\n";
+        message += "\tweight_[#neurons_layer_2][0] weight_[#neurons_layer_2][1] ... weight_[#neurons_layer_2][#neurons_layer_1]\n";
+        message += "\t#neurons_layer_3 (#neurons_layer_2) + 1(bias)\n";
+        message += "\tweight_[1][0] weight_[1][1] ... weight_[1][#neurons_layer2]\n\t...";
         break;
     case NNFileType::IDX_MNIST_LIKE_LABELS:
         break;
-    case NNFileType::IDX_MNSIT_LIKE_SAMPELS:
-        break;
-    case NNFileType::ONE_TRAINING_EXAMPLE_ONLY:
-        break;
-    case NNFileType::MATRIX_WEIGHTS:
-        message += "Make sure your file contains (#_of_neuron_layers - 1) matrices, representing the learned weights.\n";
-        message += "Also make sure that the matrices dimensions are picked correspondingly to the number of neurons.\n";
-        message += "e.g. 2 neurons first layer, 4 neurons second layer => size(first matrix in file) = 4 x 3";
-        break;
-    case NNFileType::ONE_LINE_WEIGHTS:
+    case NNFileType::IDX_MNSIT_LIKE_IMAGES:
         break;
     }
 
