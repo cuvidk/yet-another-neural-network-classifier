@@ -143,7 +143,7 @@ void NnIO::loadUnifiedData(const std::string& filename, arma::mat& input, arma::
     file.close();
 }
 
-void NnIO::saveWeights(const std::string& filename, std::vector<arma::mat>& weights)
+void NnIO::saveWeights(const std::string& filename, const std::vector<arma::mat>& weights)
 {
     std::ofstream file(filename);
 

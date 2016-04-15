@@ -38,6 +38,38 @@ arma::mat NeuralNetwork::predict(const arma::mat& input)
     return feedForward(input, m_theta);
 }
 
+void NeuralNetwork::trainOn(const std::string& filename, int numIterations, int iterationsBetweenReport)
+{
+    arma::mat in, out;
+    NnIO::loadUnifiedData(filename, in, out);
+    trainOn(in, out, numIterations, iterationsBetweenReport);
+}
+
+void NeuralNetwork::trainOn(const arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport)
+{
+    if (input.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[0]) ||
+            output.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[m_numLayers - 1]))
+        throw InvalidInputException("File's input / output length doesn't match with the"
+                                    "number of neurons on input / output layer.");
+
+    double prevCost = computeCost(input, output, m_theta);
+    double crtCost = prevCost;
+    for (int iteration = 0; iteration < numIterations; ++iteration)
+    {
+        if (iteration % iterationsBetweenReport == 0 || iteration + 1 == numIterations)
+            std::cout << "Iteration: " << iteration << " | Cost: " << crtCost << std::endl;
+        if (crtCost > prevCost)
+        {
+            std::cout << "The cost is increasing. Choose a smaller learning rate." << std::endl;
+            return;
+        }
+        backprop(input, output);
+        prevCost = crtCost;
+        crtCost = computeCost(input, output, m_theta);
+    }
+
+}
+
 void NeuralNetwork::setRegularizationFactor(double regularizationFactor)
 {
     m_regFactor = regularizationFactor;
@@ -68,31 +100,9 @@ void NeuralNetwork::loadWeights(const std::string& fileName)
     }
 }
 
-void NeuralNetwork::trainOn(const std::string& filename, int numIterations, int iterations_between_report)
+void NeuralNetwork::exportNeuralNetwork(const std::string& filename) const
 {
-    arma::mat in, out;
-    NnIO::loadUnifiedData(filename, in, out);
-
-    if (in.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[0]) ||
-            out.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[m_numLayers - 1]))
-        throw InvalidInputException("File's input / output length doesn't match with the"
-                                    "number of neurons on input / output layer.");
-
-    double prevCost = computeCost(in, out, m_theta);
-    double crtCost = prevCost;
-    for (int iteration = 0; iteration < numIterations; ++iteration)
-    {
-        if (iteration % iterations_between_report == 0 || iteration + 1 == numIterations)
-            std::cout << "Iteration: " << iteration << " | Cost: " << crtCost << std::endl;
-        if (crtCost > prevCost)
-        {
-            std::cout << "The cost is increasing. Choose a smaller learning rate." << std::endl;
-            return;
-        }
-        backprop(in, out);
-        prevCost = crtCost;
-        crtCost = computeCost(in, out, m_theta);
-    }
+    NnIO::saveWeights(filename, m_theta);
 }
 
 void NeuralNetwork::randomlyInitWeights()

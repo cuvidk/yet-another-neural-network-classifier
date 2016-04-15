@@ -26,13 +26,13 @@ public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
     NeuralNetwork(const std::string& filename);
     arma::mat predict(const arma::mat& input);
+    void trainOn(const std::string& filename, int numIterations, int iterationsBetweenReport);
+    void trainOn(const arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport);
     void setRegularizationFactor(double regularizationFactor);
     void setLearningRate(double learningRate);
     void loadWeights(const std::string& fileName);
-    void trainOn(const std::string& filename, int numIterations, int iterations_between_report);
+    void exportNeuralNetwork(const std::string& filename) const;
 
-    //exportNN
-    //trainOn(in, out)
     //normalize_inputs
 private:
     void randomlyInitWeights();
