@@ -20,7 +20,7 @@ int main()
     try {
         NeuralNetwork nn({2, 3, 1});
         nn.setLearningRate(1.0);
-        nn.trainOn("input.txt", 1000, 50);
+        nn.trainOn("input.txt", 3000, 50);
 
         mat in = ones(1, 2);
         cout << nn.predict(in) << endl;

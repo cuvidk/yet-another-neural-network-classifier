@@ -20,20 +20,21 @@ private:
     unsigned int m_numLayers;
     double m_regFactor;
     double m_learningRate;
+    bool m_featureNormalization;
 
 public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer);
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
     NeuralNetwork(const std::string& filename);
-    arma::mat predict(const arma::mat& input);
+    arma::mat predict(arma::mat& input);
     void trainOn(const std::string& filename, int numIterations, int iterationsBetweenReport);
-    void trainOn(const arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport);
+    void trainOn(arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport);
     void setRegularizationFactor(double regularizationFactor);
     void setLearningRate(double learningRate);
+    void setFeatureNormalization(bool value);
     void loadWeights(const std::string& fileName);
     void exportNeuralNetwork(const std::string& filename) const;
 
-    //normalize_inputs
 private:
     void randomlyInitWeights();
     arma::mat feedForward(const arma::mat& input, const std::vector<arma::mat>& theta);
@@ -44,6 +45,7 @@ private:
     double computeRegTerm(const std::vector<arma::mat>& theta) const;
     void backprop(const arma::mat& input, const arma::mat& output);
     void gradientDescent(const std::vector<arma::mat>& gradients);
+    void normalizeFeatures(arma::mat& input) const;
     void checkGradients(arma::mat& input, arma::mat& output, std::vector<arma::mat>& gradients);
 };
 

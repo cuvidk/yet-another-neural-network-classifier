@@ -8,7 +8,8 @@ NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float
     :m_numNeuronsOnLayer(numNeuronsOnLayer),
       m_numLayers(m_numNeuronsOnLayer.size()),
       m_regFactor(regularizationFactor),
-      m_learningRate(learningRate)
+      m_learningRate(learningRate),
+      m_featureNormalization(false)
 {
     if (m_numLayers < 2)
         throw InvalidInputException("A neural network cannot have less than 2 layers.");
@@ -22,7 +23,8 @@ NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float
 
 NeuralNetwork::NeuralNetwork(const std::string& filename)
     :m_regFactor(0.0),
-      m_learningRate(0.01)
+      m_learningRate(0.01),
+      m_featureNormalization(false)
 {
     NnIO::loadWeights(filename, m_theta);
     m_numLayers = m_theta.size() + 1;
@@ -33,7 +35,7 @@ NeuralNetwork::NeuralNetwork(const std::string& filename)
     m_numNeuronsOnLayer.push_back(m_theta[layer].n_rows);
 }
 
-arma::mat NeuralNetwork::predict(const arma::mat& input)
+arma::mat NeuralNetwork::predict(arma::mat& input)
 {
     return feedForward(input, m_theta);
 }
@@ -45,12 +47,15 @@ void NeuralNetwork::trainOn(const std::string& filename, int numIterations, int 
     trainOn(in, out, numIterations, iterationsBetweenReport);
 }
 
-void NeuralNetwork::trainOn(const arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport)
+void NeuralNetwork::trainOn(arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport)
 {
     if (input.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[0]) ||
             output.n_cols != static_cast<unsigned int>(m_numNeuronsOnLayer[m_numLayers - 1]))
         throw InvalidInputException("File's input / output length doesn't match with the"
                                     "number of neurons on input / output layer.");
+
+    if (m_featureNormalization)
+        normalizeFeatures(input);
 
     double prevCost = computeCost(input, output, m_theta);
     double crtCost = prevCost;
@@ -67,7 +72,6 @@ void NeuralNetwork::trainOn(const arma::mat& input, const arma::mat& output, int
         prevCost = crtCost;
         crtCost = computeCost(input, output, m_theta);
     }
-
 }
 
 void NeuralNetwork::setRegularizationFactor(double regularizationFactor)
@@ -78,6 +82,11 @@ void NeuralNetwork::setRegularizationFactor(double regularizationFactor)
 void NeuralNetwork::setLearningRate(double learningRate)
 {
     m_learningRate = learningRate;
+}
+
+void NeuralNetwork::setFeatureNormalization(bool value)
+{
+    m_featureNormalization = value;
 }
 
 void NeuralNetwork::loadWeights(const std::string& fileName)
@@ -214,6 +223,17 @@ void NeuralNetwork::gradientDescent(const std::vector<arma::mat>& gradients)
 {
     for (unsigned int layer = 0; layer < m_numLayers - 1; ++layer)
         m_theta[layer] -= m_learningRate * gradients[layer];
+}
+
+void NeuralNetwork::normalizeFeatures(arma::mat& input) const
+{
+    //this need to be tweaked. not okay..
+    for (unsigned int feature = 0; feature < input.n_cols; ++feature)
+    {
+        double mean = arma::mean(input.col(feature));
+        double stddev = arma::stddev(input.col(feature));
+        input.col(feature) = (input.col(feature) - mean) / stddev;
+    }
 }
 
 void NeuralNetwork::checkGradients(arma::mat &input, arma::mat &output, std::vector<arma::mat>& gradients)
