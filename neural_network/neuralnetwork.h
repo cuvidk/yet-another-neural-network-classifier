@@ -6,9 +6,9 @@
 #include <cmath>
 #include <armadillo>
 
-#include "nnio.h"
-#include "invalidinputexception.h"
-#include "nnfiletype.h"
+#include "../neural_network_io/nnio.h"
+#include "../exception/invalidinputexception.h"
+#include "../utils/nnfiletype.h"
 
 class NeuralNetwork
 {
@@ -26,7 +26,7 @@ public:
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer);
     NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer, float regularizationFactor, float learningRate);
     NeuralNetwork(const std::string& filename);
-    arma::mat predict(arma::mat& input);
+    arma::mat predict(const arma::mat& input);
     void trainOn(const std::string& filename, int numIterations, int iterationsBetweenReport);
     void trainOn(arma::mat& input, const arma::mat& output, int numIterations, int iterationsBetweenReport);
     void setRegularizationFactor(double regularizationFactor);
@@ -34,6 +34,7 @@ public:
     void setFeatureNormalization(bool value);
     void loadWeights(const std::string& fileName);
     void exportNeuralNetwork(const std::string& filename) const;
+    double getPredictionAccuracy(const arma::mat& expectedOutput, const arma::mat& actualOutput) const;
 
 private:
     void randomlyInitWeights();

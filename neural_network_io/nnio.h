@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <armadillo>
 
-#include "fileopenexception.h"
-#include "fileformatexception.h"
+#include "../exception/fileopenexception.h"
+#include "../exception/fileformatexception.h"
 
 class NnIO
 {

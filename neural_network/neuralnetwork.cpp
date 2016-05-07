@@ -1,4 +1,5 @@
 #include "neuralnetwork.h"
+#include <iostream>
 
 NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer)
     :NeuralNetwork(numNeuronsOnLayer, 0.0, 0.01)
@@ -32,10 +33,10 @@ NeuralNetwork::NeuralNetwork(const std::string& filename)
     unsigned int layer;
     for (layer = 0; layer < m_numLayers - 1; ++layer)
         m_numNeuronsOnLayer.push_back(m_theta[layer].n_cols - 1);
-    m_numNeuronsOnLayer.push_back(m_theta[layer].n_rows);
+    m_numNeuronsOnLayer.push_back(m_theta[--layer].n_rows);
 }
 
-arma::mat NeuralNetwork::predict(arma::mat& input)
+arma::mat NeuralNetwork::predict(const arma::mat& input)
 {
     return feedForward(input, m_theta);
 }
@@ -112,6 +113,23 @@ void NeuralNetwork::loadWeights(const std::string& fileName)
 void NeuralNetwork::exportNeuralNetwork(const std::string& filename) const
 {
     NnIO::saveWeights(filename, m_theta);
+}
+
+double NeuralNetwork::getPredictionAccuracy(const arma::mat& expectedOutput, const arma::mat& actualOutput) const
+{
+    //YOU NEED CHECKS HERE!!
+    unsigned int numTests = expectedOutput.n_rows;
+    unsigned int correctlyClassified = 0;
+    for (unsigned int testIndex = 0; testIndex < numTests; ++testIndex)
+    {
+        arma::uword expectedLabel, actualLabel, garbage;
+        expectedOutput.row(testIndex).max(garbage, expectedLabel);
+        actualOutput.row(testIndex).max(garbage, actualLabel);
+
+        if (expectedLabel == actualLabel)
+            ++correctlyClassified;
+    }
+    return (correctlyClassified * 100.0) / numTests;
 }
 
 void NeuralNetwork::randomlyInitWeights()
@@ -227,7 +245,7 @@ void NeuralNetwork::gradientDescent(const std::vector<arma::mat>& gradients)
 
 void NeuralNetwork::normalizeFeatures(arma::mat& input) const
 {
-    //this need to be tweaked. not okay..
+    //this needs to be tweaked. not okay..
     for (unsigned int feature = 0; feature < input.n_cols; ++feature)
     {
         double mean = arma::mean(input.col(feature));
