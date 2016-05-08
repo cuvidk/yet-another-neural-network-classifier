@@ -1,14 +1,29 @@
 # C++ objects and libs
 
+*.obj
 *.slo
 *.lo
 *.o
 *.a
 *.la
 *.lai
+*.lib
 *.so
 *.dll
 *.dylib
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Fortran module files
+*.mod
+
+# Executables
+*.exe
+*.out
+*.app
+
 
 # Qt-es
 

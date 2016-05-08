@@ -1,5 +1,7 @@
 #include "neuralnetwork.h"
-#include <iostream>
+#include "nnio.h"
+#include "invalidinputexception.h"
+#include "nnfiletype.h"
 
 NeuralNetwork::NeuralNetwork(std::initializer_list<int> numNeuronsOnLayer)
     :NeuralNetwork(numNeuronsOnLayer, 0.0, 0.01)

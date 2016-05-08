@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../utils/nnfiletype.h"
+#include "nnfiletype.h"
 
 class FileFormatException : public std::runtime_error
 {

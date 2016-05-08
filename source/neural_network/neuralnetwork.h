@@ -6,10 +6,6 @@
 #include <cmath>
 #include <armadillo>
 
-#include "../neural_network_io/nnio.h"
-#include "../exception/invalidinputexception.h"
-#include "../utils/nnfiletype.h"
-
 class NeuralNetwork
 {
 private:

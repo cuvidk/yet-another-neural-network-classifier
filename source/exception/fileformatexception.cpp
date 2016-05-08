@@ -31,10 +31,6 @@ const char* FileFormatException::what() const throw ()
         message += "\t#neurons_layer_3 (#neurons_layer_2) + 1(bias)\n";
         message += "\tweight_[1][0] weight_[1][1] ... weight_[1][#neurons_layer2]\n\t...";
         break;
-    case NNFileType::IDX_MNIST_LIKE_LABELS:
-        break;
-    case NNFileType::IDX_MNSIT_LIKE_IMAGES:
-        break;
     }
 
     return message.c_str();

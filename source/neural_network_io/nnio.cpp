@@ -1,4 +1,6 @@
 #include "nnio.h"
+#include "fileopenexception.h"
+#include "fileformatexception.h"
 
 std::istringstream NnIO::m_iss;
 std::stringstream NnIO::m_ss;

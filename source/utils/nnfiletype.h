@@ -5,9 +5,7 @@ enum class NNFileType
 {
     WEIGHTS,
     SIMPLE,
-    UNIFIED,
-    IDX_MNIST_LIKE_LABELS,
-    IDX_MNSIT_LIKE_IMAGES
+    UNIFIED
 };
 
 #endif // NNFILETYPE_H

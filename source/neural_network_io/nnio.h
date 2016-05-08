@@ -10,9 +10,6 @@
 #include <algorithm>
 #include <armadillo>
 
-#include "../exception/fileopenexception.h"
-#include "../exception/fileformatexception.h"
-
 class NnIO
 {
 private:
@@ -27,7 +24,6 @@ public:
     static void loadWeights(const std::string& filename, std::vector<arma::mat>& weights);
     static void loadSimpleData(const std::string& filename, arma::mat& container);
     static void loadUnifiedData(const std::string& filename, arma::mat& input, arma::mat& output);
-
     static void saveWeights(const std::string& filename, const std::vector<arma::mat>& weights);
 };
 
