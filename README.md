@@ -82,7 +82,7 @@ logical operator that outputs true only when inputs differ. Let's consider true 
 truth table would look like this:
 
 ```
-Input_A	Input_B XOR
+A	B	XOR
 0	0	0
 0	1	1
 1	0	1
@@ -102,5 +102,85 @@ label(1)(number_of_examples) ... label(number_of_labels)(number_of_examples)
 
 ```
 
-The training data
-There are two ways to load your training data
+So our `training_data.txt` should look as follows:
+
+```
+4 2 1
+0 0
+0
+0 1
+1
+1 0
+1
+1 1
+0
+```
+**IMPORTANT**: Be sure not to end the line for the last label, or an exception will be raised.
+
+Now let's write a program that creates a neural network consisting of 3 layers. The first layer will have 2
+neurons on it, since we have 2 inputs for XOR (A and B). For the purpose of this example, the second layer (the
+hidden one) will contain 3 neurons, but you really can experiment on this one. And the 3rd layer will contain 1
+neuron (the output neuron) that should carry the output of our XOR operator. To do this we will write the
+following line of code:
+
+```C++
+NeuralNetwork nn({2, 3, 1});
+```
+
+Now that our neural network has been created, let's train it on our training data inside `training_data.txt`, but
+before that I will set the learning rate to 1.0 since it is 0.01 by default. I'm doing that because I want my 
+network to learn faster, though take care tweaking that parameter.
+We will also specify that we want to train for 1000 iterations and we would like to see training reports after
+each 10 iterations. We can do this as follows:
+
+```C++
+nn.setLearningRate(1.0);
+nn.trainOn("training_data.txt", 1000, 10);
+```
+
+So our neural network should be trained right now, so the last thing to do is to test it. To do that I'll use
+armadillo's API to create a 1 x 2 matrix containing the values 1 and 0, and I'll ask the neural network to
+predict the result for that input. If the network was well trained I should obtain a value very close to 1,
+which would be the expected result for such an input.
+
+```C++
+arma::mat test_input(1, 2);
+test_input(0, 0) = 1;
+test_input(0, 1) = 0;
+
+arma::mat test_output = nn.predict(test_input);
+
+std::cout << "Neural network's prediction is: " << test_output << std::endl;
+```
+That's it, you can experiment also with test inputs like (0, 0) or (1, 1) and you should see an output very close
+to 0. Now to put it together:
+
+```C++
+#include <iostream>
+#include <armadillo>
+#include <yaannc/neuralnetwork.h>
+#include <stdexcept>
+
+int main()
+{
+  try
+  {
+    NeuralNetwork nn({2, 3, 1});
+    nn.setLearningRate(1.0);
+    nn.trainOn(`training_data.txt`, 1000, 10);
+
+    arma::mat test_input(1, 2);
+    test_input(0, 0) = 1;
+    test_input(0, 1) = 0;
+
+    arma::mat test_output = nn.predict(test_input);
+
+    std::cout << "Neural network's prediction is: " << test_output << std::endl;
+  }
+  catch (std::runtime_error& e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+}
+``` 
+
