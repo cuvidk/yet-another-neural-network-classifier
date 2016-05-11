@@ -139,9 +139,9 @@ nn.trainOn("training_data.txt", 1000, 10);
 ```
 
 So our neural network should be trained right now, so the last thing to do is to test it. To do that I'll use
-armadillo's API to create a 1 x 2 matrix containing the values 1 and 0, and I'll ask the neural network to
+armadillo's API to create an 1 x 2 matrix containing the values 1 and 0, and I'll ask the neural network to
 predict the result for that input. If the network was well trained I should obtain a value very close to 1,
-which would be the expected result for such an input.
+which would be the expected result for such an input:
 
 ```C++
 arma::mat test_input(1, 2);
@@ -152,8 +152,29 @@ arma::mat test_output = nn.predict(test_input);
 
 std::cout << "Neural network's prediction is: " << test_output << std::endl;
 ```
-That's it, you can experiment also with test inputs like (0, 0) or (1, 1) and you should see an output very close
-to 0. Now to put it together:
+You can experiment also with test inputs like (0, 0) or (1, 1) and you should see an output very close
+to 0. Now that we know that our neural network is well trained, we can save it in a file, so next
+time when we want to classify some input, we will avoid losing time training our network again. We will instead
+load it ready for use:
+
+```C++
+nn.exportNeuralNetwork("xor_classifier.txt");
+```
+
+To load a neural network from a file we can do the following:
+
+```C++
+NeuralNetwork nn("xor_classifier.txt");
+```
+
+or
+
+```C++
+NeuralNetwork nn({3, 2, 1});
+nn.loadWeights("xor_classifier.txt");
+```
+
+To put it together:
 
 ```C++
 #include <iostream>
@@ -167,7 +188,7 @@ int main()
   {
     NeuralNetwork nn({2, 3, 1});
     nn.setLearningRate(1.0);
-    nn.trainOn(`training_data.txt`, 1000, 10);
+    nn.trainOn("training_data.txt", 1000, 10);
 
     arma::mat test_input(1, 2);
     test_input(0, 0) = 1;
@@ -176,6 +197,8 @@ int main()
     arma::mat test_output = nn.predict(test_input);
 
     std::cout << "Neural network's prediction is: " << test_output << std::endl;
+
+    nn.exportNeuralNetwork("xor_classifier.txt");
   }
   catch (std::runtime_error& e)
   {
@@ -184,3 +207,80 @@ int main()
 }
 ``` 
 
+###More
+
+yaannc contains a special class called NnIO which stands for Neural Network Input Output, that can handle data
+loading. So you can load for example training data without directly training on it like you saw in the previous
+example. You can still train on the loaded data afterwards, yaannc API providing a method to do that. Let's load
+the the data inside `training_data.txt` file using NnIO.
+
+```C++
+#include <armadillo>
+#include <yaannc/nnio.h>
+#include <yaannc/neuralnetwork.h>
+
+int main()
+{
+  try
+  {
+    arma::mat features, labels;
+    NnIO::loadUnifiedData("training_data.txt", features, labels);
+
+    NeuralNetwork nn({2, 3, 1});
+    nn.setLearningRate(1.0);
+    
+    //you can use this alternative method to train on pre-loaded data
+    nn.trainOn(features, labels, 1000, 1);
+  }
+  catch (std::runtime_error& e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+}
+```
+
+NnIO also provides a method to load features / labels sitting in separate files. The file format should be:
+
+```
+number_rows number_columns
+item(1)(1) ... item(1)(number_columns)
+...
+item(number_rows)(1) ... item(number_rows)(number_columns)
+```
+**IMPORTANT**: Be sure not to end the last line, or an exception will be raised.
+
+So for file `input.txt`:
+```
+2 3
+0 1 1
+1 1 0
+```
+we could do the following:
+
+```C++
+arma::mat input;
+NnIO.loadSimpleData("input.txt", input);
+```
+
+NeuralNetwork class also provides a method to set the regularization factor which is 0.0 by default:
+
+```C++
+nn.setRegularizationFactor(0.01);
+```
+
+There's also a usefull method that computes the prediction acurracy of your neural network. What you need to
+do is to pass in the expected output and the actual output obtained by running the network on an example:
+
+```C++
+arma::mat to_classify, expected_output;
+NnIO::loadUnifiedData("test_data.txt", to_classify, expected_output);
+arma::mat actual_output = nn.predict(to_classify);
+double accuracy = nn.getPredictionAccuracy(expected_output, actual_output);
+
+std::cout << "The prediction accuracy is: " << accuracy << std::endl;
+```
+For examples, please see `{yaannc-root}/examples`.
+
+##Author
+
+Tiperciuc Corvin
