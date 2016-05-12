@@ -21,6 +21,8 @@ other hand, windows installation for armadillo is pretty confusing so I added un
 
 ###Linux
 
+This is for debian based systems, though for other systems should be similar.
+
 * Open up a terminal;
 * Make sure you have g++ installed. If you have a Debian based system you can run the following command
 to install g++:
@@ -46,8 +48,10 @@ $ sudo make install
 code you can use the following command:
 
 ```bash
-$ g++ {your_source_files} -lyaannc -larmadillo
+$ g++ {your_source_files} -lyaannc -larmadillo -std=c++11
 ```
+**IMPORTANT**: Be sure to specify -lyaannc library before -larmadillo, or else you will get linking errors.
+
 If you want to uninstall the library from the system, in `{yaannc-root}/install/linux` run the following command:
 
 ```bash
@@ -196,7 +200,7 @@ int main()
 
     arma::mat test_output = nn.predict(test_input);
 
-    std::cout << "Neural network's prediction is: " << test_output << std::endl;
+    std::cout << "Neural network's prediction for input " << test_input << "is: " << test_output << std::endl;
 
     nn.exportNeuralNetwork("xor_classifier.txt");
   }
@@ -259,7 +263,7 @@ we could do the following:
 
 ```C++
 arma::mat input;
-NnIO.loadSimpleData("input.txt", input);
+NnIO::loadSimpleData("input.txt", input);
 ```
 
 NeuralNetwork class also provides a method to set the regularization factor which is 0.0 by default:
