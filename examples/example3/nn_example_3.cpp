@@ -8,7 +8,7 @@ int main()
 {
     try
     {
-	//here an already trained neural network from a file
+	//here we create an already trained neural network from a file
         NeuralNetwork nn("xor_classifier.txt");
 
 	//the inputs and outputs are separated in different files,

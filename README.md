@@ -227,6 +227,7 @@ int main()
 {
   try
   {
+    //load data using NnIO
     arma::mat features, labels;
     NnIO::loadUnifiedData("training_data.txt", features, labels);
 
@@ -283,7 +284,7 @@ double accuracy = nn.getPredictionAccuracy(expected_output, actual_output);
 
 std::cout << "The prediction accuracy is: " << accuracy << std::endl;
 ```
-For examples, please see `{yaannc-root}/examples`.
+For examples, please see [`{yaannc-root}/examples`](https://github.com/cuvidk/yet-another-neural-network-classifier/tree/master/examples).
 
 ##Author
 
