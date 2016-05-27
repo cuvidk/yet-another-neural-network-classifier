@@ -38,7 +38,7 @@ uninstall:
 
 create-lib:
 	echo --generating object files-- 
-	g++ -c $(SOURCES) $(HEADER_DIRS) $(REQUIRED_LIBS) -std=c++11
+	g++ -c $(SOURCES) $(HEADER_DIRS) $(REQUIRED_LIBS) -std=c++11 -O3
 	echo --creating $(OUTPUT_LIB_DIRECTORY) directory--
 	mkdir $(OUTPUT_LIB_DIRECTORY)
 	echo --creating $(OUTPUT_LIB) file--
