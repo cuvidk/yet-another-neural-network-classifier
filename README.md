@@ -2,7 +2,7 @@
 
 	Yet Another Artificial Neural Network Classifier.
 	
-This is a project that I worked on my final year of college.
+This is a project that I worked on my final year of college for my bachelor degree.
 
 This provides a pretty simple API that anyone can use for classification. All you need to do is to 
 collect some training set, train the neural network on it and then you can provide the network an item that 
